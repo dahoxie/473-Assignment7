@@ -20,7 +20,7 @@ http.createServer(app).listen(3000);
 var url = "mongodb://localhost:27017/assignment7";
 
 MongoClient.connect(url, function(err, db) {
-  "use strict";
+    "use strict";
     console.log("Mongo Connection Error: " + err);
     mondb = db;
 
@@ -29,7 +29,7 @@ MongoClient.connect(url, function(err, db) {
 //closes connection to mongodb when
 //SIGINT is sent to process
 process.on("SIGINT", function() {
-	  "use strict";
+    "use strict";
     mondb.close();
     process.exit();
 });
@@ -38,7 +38,11 @@ process.on("SIGINT", function() {
 app.post("/links", function(req, res) {
     "use strict";
     var collection = mondb.collection("links");
-    collection.insertOne({title:req.body.title, link:req.body.link, clicks:0}, function(err, result) {
+    collection.insertOne({
+        title: req.body.title,
+        link: req.body.link,
+        clicks: 0
+    }, function(err, result) {
         console.log("Mongo Insertion Error: " + err);
     });
 });
@@ -62,17 +66,25 @@ app.get("/links", function(req, res) {
 //given link
 app.get("/click/:title", function(req, res) {
     "use strict";
-	var collection = mondb.collection("links"),
-	linkClicks = 0;
+    var collection = mondb.collection("links"),
+        linkClicks = 0;
     console.log(req);
-    collection.find({title: req.params.title}, function(err, result) {
+    collection.find({
+        title: req.params.title
+    }, function(err, result) {
         console.log("Mongo find Error: " + err);
         result.toArray(function(err, linksArray) {
             res.redirect(linksArray[0][2]);
             linkClicks = linksArray[0][3] + 1;
-            collection.updateOne({title: req.params.title}, {$set: {clicks: linkClicks}}, function(err, result) {
-    			console.log("Mongo update Error: " + err);
-    		});
+            collection.updateOne({
+                title: req.params.title
+            }, {
+                $set: {
+                    clicks: linkClicks
+                }
+            }, function(err, result) {
+                console.log("Mongo update Error: " + err);
+            });
         });
 
     });
